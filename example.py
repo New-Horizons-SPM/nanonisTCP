@@ -22,4 +22,5 @@ bias.Set(7)
 followme = FolMe(NTCP)
 
 answer = followme.XYPosSet(50e-9, -300e-9, Wait_end_of_move=False)
+
 NTCP.close_connection()
