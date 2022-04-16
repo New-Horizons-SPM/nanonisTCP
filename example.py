@@ -6,20 +6,33 @@ Created on Tue Mar 29 16:56:08 2022
 @author: jack
 """
 
+from NanonisTCP import NanonisTCP
+from Bias       import Bias
+from FolMe      import FolMe
 
-from NanonisTCP import Bias, FolMe, NanonisTCP
-
+"""
+Set up the TCP connection and interface
+"""
 TCP_IP = '127.0.0.1'
-TCP_PORT = 6501
+TCP_PORT = 6501                                                                 # Listening Port: see Nanonis File>Settings>TCP Programming Interface
+NTCP = NanonisTCP(TCP_IP, TCP_PORT)                                             # Nanonis TCP interface
 
-NTCP = NanonisTCP(TCP_IP, TCP_PORT)
-bias = Bias(NTCP)
+"""
+Bias Module: Set/Get Bias example
+"""
+bias = Bias(NTCP)                                                               # Nanonis Bias Module
 
-bias.Set(7)
+bias.Set(5)                                                                     # Set bias to 7 V
+v = bias.Get()                                                                  # Get the current bias
+print("Bias: " + str(v) + " V")
 
-# NTCP.close_connection()
+"""
+Follow Me Module: Set/Get XY Pos example
+"""
+followme = FolMe(NTCP)                                                          # Nanonis Follow Me Module
 
-followme = FolMe(NTCP)
+followme.XYPosSet(5e-9, -5e-9, Wait_end_of_move=True)                           # Set xy pos to 5 nm, -5 nm
+x,y = followme.XYPosGet(Wait_for_newest_data=True)                              # Get the current XY tip position
+print("Tip Position: " + str(x) + " nm, " + str(y) + " nm")    
 
-answer = followme.XYPosSet(50e-9, -300e-9, Wait_end_of_move=False)
 NTCP.close_connection()
