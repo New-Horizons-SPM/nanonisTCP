@@ -44,5 +44,5 @@ class Bias:
         
         response = self.NanonisTCP.receive_response(4)
         
-        bias = self.NanonisTCP.hex_to_float32(response[0:4].hex())
+        bias = self.NanonisTCP.hex_to_float32(response[0:4])
         return bias

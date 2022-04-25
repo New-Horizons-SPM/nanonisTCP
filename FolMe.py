@@ -60,7 +60,151 @@ class FolMe:
         ## Receive Response
         response = self.NanonisTCP.receive_response(16)
         
-        xpos = self.NanonisTCP.hex_to_float64(response[0:8].hex())
-        ypos = self.NanonisTCP.hex_to_float64(response[8:16].hex())
+        xpos = self.NanonisTCP.hex_to_float64(response[0:8])
+        ypos = self.NanonisTCP.hex_to_float64(response[8:16])
         
         return (xpos,ypos)
+    
+    def SpeedSet(self, speed, custom_speed):
+        """
+        Configures the tip speed when moving in Follow Me
+
+        Parameters
+        speed (float32)       : sets the surface speed in Follow Me
+        custom_speed (uint32) : True:  speed setting is custom speed
+                                False: speed setting is scan speed
+                                
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.SpeedSet', body_size=8)
+        
+        # arguments
+        hex_rep += self.NanonisTCP.float32_to_hex(speed)
+        hex_rep += self.NanonisTCP.to_hex(custom_speed,4)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response (check for errors)
+        self.NanonisTCP.receive_response(0)
+    
+    def SpeedGet(self):
+        """
+        Returns the tip speed when moving in Follow Me mode
+
+        Returns
+        -------
+        speed (float32)       : surface speed in Follow Me mode
+        custom_speed (uint32) : True:  speed setting is custom speed
+                                False: speed setting is scam speed
+                                
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.SpeedGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response
+        response = self.NanonisTCP.receive_response(8)
+        
+        speed        = self.NanonisTCP.hex_to_float32(response[0:4])
+        custom_speed = self.NanonisTCP.hex_to_uint16(response[4:8]) > 0
+        
+        return (speed,custom_speed)
+    
+    def OversamplSet(self,Oversampling):
+        """
+        Sets the oversampling of the acquired data when the tip is moving in
+        Follow Me mode
+
+        Parameters
+        Oversampling (int) : oversampling of data acquisition in fol me mode
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.OversamplSet', body_size=4)
+        
+        # arguments
+        hex_rep += self.NanonisTCP.to_hex(Oversampling,4)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response (check for errors only)
+        self.NanonisTCP.receive_response(0)
+    
+    def OversamplGet(self):
+        """
+        Returns the overampling and rate of the acquired data when tip is in
+        Follow Me mode
+
+        Returns
+        oversampling (int)    : oversampling of data acquisition in fol me mode
+        sample_rate (float32) : sample rate
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.OversamplGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response
+        response = self.NanonisTCP.receive_response(8)
+        
+        oversampling = self.NanonisTCP.hex_to_uint16(response[0:4])
+        sample_rate  = self.NanonisTCP.hex_to_float32(response[4:8])
+        
+        return (oversampling, sample_rate)
+    
+    def Stop(self):
+        """
+        Stops the tip movement in follow me mode
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.Stop', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response (check errors)
+        self.NanonisTCP.receive_response(0)
+    
+    def PSOnOffSet(self,ps_status):
+        """
+        Enables or disables Point & Shoot in Follow Me mode
+
+        Parameters
+        ps_status (boolean) : True:  enabled
+                              False: disabled
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.PSOnOffSet', body_size=4)
+        
+        # arguments
+        hex_rep += self.NanonisTCP.to_hex(ps_status,4)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response (check errors)
+        self.NanonisTCP.receive_response(0)
+        
+    def PSOnOffGet(self):
+        """
+        Returns if Point & Shoot is enabled or disabled in follow me mode
+
+        Returns
+        ps_status (boolean): True:  enabled
+                             False: disabled
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('FolMe.PSOnOffGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response
+        response = self.NanonisTCP.receive_response(4)
+        
+        ps_status = self.NanonisTCP.hex_to_uint16(response[0:4]) > 0
+        
+        return ps_status
+    

@@ -52,11 +52,11 @@ class NanonisTCP:
     
     def hex_to_float64(self,h64):
         # see https://forum.inductiveautomation.com/t/ieee-754-standard-converting-64-bit-hex-to-decimal/9324/3
-        return struct.unpack("<d", struct.pack("Q",int("0x"+h64, 16)))[0]
+        return struct.unpack("<d", struct.pack("Q",int("0x"+h64.hex(), 16)))[0]
     
     def hex_to_float32(self,h32):
         # see https://forum.inductiveautomation.com/t/ieee-754-standard-converting-64-bit-hex-to-decimal/9324/3
-        return struct.unpack("<f", struct.pack("I",int("0x"+h32, 16)))[0]
+        return struct.unpack("<f", struct.pack("I",int("0x"+h32.hex(), 16)))[0]
     
     ## x to hex conversions
     def float64_to_hex(self,f64):
