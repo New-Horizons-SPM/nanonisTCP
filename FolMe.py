@@ -107,7 +107,7 @@ class FolMe:
         response = self.NanonisTCP.receive_response(8)
         
         speed        = self.NanonisTCP.hex_to_float32(response[0:4])
-        custom_speed = self.NanonisTCP.hex_to_uint16(response[4:8]) > 0
+        custom_speed = self.NanonisTCP.hex_to_uint32(response[4:8]) > 0
         
         return (speed,custom_speed)
     
@@ -149,7 +149,7 @@ class FolMe:
         # Receive Response
         response = self.NanonisTCP.receive_response(8)
         
-        oversampling = self.NanonisTCP.hex_to_uint16(response[0:4])
+        oversampling = self.NanonisTCP.hex_to_int32(response[0:4])
         sample_rate  = self.NanonisTCP.hex_to_float32(response[4:8])
         
         return (oversampling, sample_rate)
@@ -204,7 +204,7 @@ class FolMe:
         # Receive Response
         response = self.NanonisTCP.receive_response(4)
         
-        ps_status = self.NanonisTCP.hex_to_uint16(response[0:4]) > 0
+        ps_status = self.NanonisTCP.hex_to_uint32(response[0:4]) > 0
         
         return ps_status
     

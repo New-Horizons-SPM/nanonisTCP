@@ -47,9 +47,18 @@ class NanonisTCP:
     ## https://docs.python.org/3/library/struct.html#format-characters
     
     ## Hex to x conversions
-    def hex_to_uint16(self,h16):
-        return struct.unpack('<I', h16)[0]
+    def hex_to_int16(self,h16):
+        return struct.unpack("<h",struct.pack("H",int("0x"+h16.hex(),16)))[0]
     
+    def hex_to_uint16(self,h16):
+        return struct.unpack("<H",struct.pack("H",int("0x"+h16.hex(),16)))[0]
+    
+    def hex_to_int32(self,h32):
+        return struct.unpack("<i",struct.pack("I",int("0x"+h32.hex(),16)))[0]
+    
+    def hex_to_uint32(self,h32):
+        return struct.unpack("<I", struct.pack("I",int("0x"+h32.hex(), 16)))[0]
+        
     def hex_to_float64(self,h64):
         # see https://forum.inductiveautomation.com/t/ieee-754-standard-converting-64-bit-hex-to-decimal/9324/3
         return struct.unpack("<d", struct.pack("Q",int("0x"+h64.hex(), 16)))[0]
@@ -61,14 +70,17 @@ class NanonisTCP:
     ## x to hex conversions
     def float64_to_hex(self,f64):
         # see https://stackoverflow.com/questions/23624212/how-to-convert-a-float-into-hex
+        if(f64 == 0): return "0000000000000000"                                 # workaround for zero. look into this later
         return hex(struct.unpack('<Q', struct.pack('<d', f64))[0])[2:]          # float64 to hex
     
     def float32_to_hex(self,f32):
         # see https://stackoverflow.com/questions/23624212/how-to-convert-a-float-into-hex
+        if(f32 == 0): return "00000000"                                         # workaround for zero. look into this later
         return hex(struct.unpack('<I', struct.pack('<f', f32))[0])[2:]          # float32 to hex
     
     def to_hex(self,conv,num_bytes):
-        return "{0:#0{1}}".format(conv, 2*num_bytes)
+        if(conv >= 0): return "{0:#0{1}}".format(int(format(conv, 'x')), 2*num_bytes)
+        if(conv < 0):  return hex((conv + (1 << 8*num_bytes)) % (1 << 8*num_bytes))[2:]
     
     def send_command(self, message):
         """
@@ -77,21 +89,38 @@ class NanonisTCP:
         """
         self.s.send(bytes.fromhex(message))                                     # Convert hex into bytes object
         
-    def receive_response(self, error_index, keep_header = False):
+    def receive_response(self, error_index=-1, keep_header = False):
         """
         Parameters
-        error_index : index of 'error status' within the body
+        error_index : index of 'error status' within the body. -1 skip check
         keep_header : if true: return entire response. if false: return body
         
         Returns
         response    : either header + body or body only (keep_header)
         
-        Raises
-        Exception   : error message returned from Nanonis
         """
         response = self.s.recv(self.max_buf_size)                               # Read the response
         
-        i = error_index + 40                                                    # error_index points to start-byte in the body, which is after the 40-byte header
+        if(error_index > -1): self.check_error(response[40:],error_index)       # error_index < 0 skips error check
+        
+        if(not keep_header):
+            return response[40:]                                                # Header is fixed to 40 bytes - drop it
+        
+        return response
+    
+    def check_error(self,response,error_index):
+        """
+        Checks the response from nanonis for error messages
+
+        Parameters
+        response : response body (not inc. header) from nanonis (bytes)
+        error_index : index of error status within the body
+
+        Raises
+        Exception   : error message returned from Nanonis
+
+        """
+        i = error_index                                                         # error_index points to start-byte in the body, which is after the 40-byte header
         error_status = self.hex_to_uint16(response[i:i+4])                      # error_status is 4 bytes long
         
         if(error_status):
@@ -99,11 +128,7 @@ class NanonisTCP:
             error_description = response[i:].decode()                           # just grab from start index to the end of the message
             raise Exception(error_description)                                  # raise the exception
         
-        if(not keep_header):
-            return response[40:]                                                # Header is fixed to 40 bytes - drop it
         
-        return response
-    
     def close_connection(self):
         """
         Close the TCP connection
