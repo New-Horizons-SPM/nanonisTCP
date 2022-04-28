@@ -30,21 +30,36 @@ Status Get
 Wait end of scan
 """
 timeout_status, file_path_size, file_path = scan.WaitEndOfScan()
+print("Wait end of scan")
 print("timeout_status: " + ["EOS","Timed out"][timeout_status])
 print("file_path: " + file_path)
-
+print("----------------------------------------------------------------------")
 """
 Frame Parameters Set/Get
 """
 scan.FrameSet(5e-9,-5e-9,30e-9,30e-9,15)
 x,y,w,h,angle = scan.FrameGet()
+print("Frame Parameters")
 print("Frame Position:  " + str(x) + " m," + str(y) + " m")
 print("Frame dimension: " + str(w) + " m x " + str(h) + " m")
 print("Frame angle:     " + str(angle) + " deg")
+print("----------------------------------------------------------------------")
 
 """
 Buffer Parameters Set/Get
 """
-scan.BufferSet([0,1], 512, 512)
+scan.BufferSet([0,5], 512, 512)
+num_channels,channel_indexes,pixels,lines = scan.BufferGet()
+print("Buffer Parameters")
+print("Buffer num_channels:    " + str(num_channels))
+print("Buffer channel_indexes: " + str(channel_indexes))
+print("Buffer pixels:          " + str(pixels))
+print("Buffer lines:           " + str(lines))
+print("----------------------------------------------------------------------")
+
+"""
+Props Set/Get
+"""
+scan.PropsSet()
 
 NTCP.close_connection()

@@ -149,13 +149,101 @@ class Scan:
         ## arguments
         hex_rep += self.NanonisTCP.to_hex(num_channels,4)
         for c in channel_indexes:
-            hex_rep += self.NanonisTCP.float32_to_hex(c)
+            hex_rep += self.NanonisTCP.to_hex(c,4)
         hex_rep += self.NanonisTCP.to_hex(pixels,4)
         hex_rep += self.NanonisTCP.to_hex(lines,4)
         
-        print(self.NanonisTCP.to_hex(pixels,4))
         self.NanonisTCP.send_command(hex_rep)
         
         # Receive Response (check errors)
         self.NanonisTCP.receive_response(0)
         
+    def BufferGet(self):
+        """
+        Returns the scan buffer parameters
+
+        Returns
+        num_channels    : number of recorded channels.
+        channel_indexes : indexes of recorded channels (see signals manager or
+                          use Signals.InSlotsGet function)
+        pixels          : number of pixels per line. forced to a multiple of 16
+        lines           : number of scan lines
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('Scan.BufferGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response
+        response = self.NanonisTCP.receive_response()
+        
+        idx = 0
+        channel_indexes = []
+        num_channels = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+        for c in range(num_channels):
+            idx += 4
+            channel_indexes.append(self.NanonisTCP.hex_to_int32(response[idx:idx+4]))
+        
+        idx += 4
+        pixels = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+        
+        idx += 4
+        lines = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+        
+        # Receive Response (check errors)
+        idx += 4
+        self.NanonisTCP.check_error(response, idx)                              # Makes no sense to check if there's error at this point, but how else do we check?
+        
+        return [num_channels,channel_indexes,pixels,lines]
+        
+    def PropsSet(self,continuous_scan=0,bouncy_scan=0,autosave=0,series_name="%y%m%d_%H-%M-%S_SPM",comment=""):
+        """
+        Configures some of the scan parameters
+
+        Parameters
+        continuous_scan : sets whether the scan continues or stops when a frame
+                          has been completed.
+                          0: no change (leave previous setting)
+                          1: turn on
+                          2: turn off
+                          
+        bouncy_scan     : sets whether the scan direction changes when a frame
+                          has been completed.
+                          0: no change (leave previous setting)
+                          1: turn on (scan direction changes each EOS)
+                          2: turn off (scan direction doesn't change each EOS)
+            
+        autosave        : defines the save behaviour when a frame has been
+                          completed.
+                          0: no change (leave previous setting)
+                          1: save all
+                          2: save next only
+                          3: turn off (save none)
+        series_name     : is the base name used for the saved images
+        
+        comment         : is the comment saved in the file
+
+        """
+        series_name_size = int(len(self.NanonisTCP.string_to_hex(series_name))/2)
+        comment_size     = int(len(self.NanonisTCP.string_to_hex(comment))/2)
+        body_size = 20 + series_name_size + comment_size
+        
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('Scan.PropsSet', body_size=body_size)
+        
+        ## arguments
+        hex_rep += self.NanonisTCP.to_hex(continuous_scan,4)
+        hex_rep += self.NanonisTCP.to_hex(bouncy_scan,4)
+        hex_rep += self.NanonisTCP.to_hex(autosave,4)
+        hex_rep += self.NanonisTCP.to_hex(series_name_size,4)
+        if(series_name_size > 0):
+            hex_rep += self.NanonisTCP.string_to_hex(series_name)
+        hex_rep += self.NanonisTCP.to_hex(comment_size,4)
+        if(comment_size > 0):
+            hex_rep += self.NanonisTCP.string_to_hex(comment)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        # Receive Response (check errors)
+        self.NanonisTCP.receive_response(0)
