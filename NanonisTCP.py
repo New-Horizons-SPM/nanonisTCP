@@ -11,7 +11,7 @@ import socket
 
 
 class NanonisTCP:
-    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=1024):
+    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=1024*100):
         """
         Parameters
         IP              : Listening IP address
@@ -38,8 +38,8 @@ class NanonisTCP:
         """
         hex_rep = command_name.encode('utf-8').hex()                            # command name
         hex_rep += "{0:#0{1}}".format(0,(64 - len(hex_rep)))                    # command name (fixed 32)
-        hex_rep += "{0:#0{1}}".format(int(format(body_size, 'x')), 8)           # Body size (fixed 4)
-        hex_rep += "{0:#0{1}}".format(resp, 4)                                  # Send response (fixed 2)
+        hex_rep += self.to_hex(body_size, 4)                                    # Body size (fixed 4)
+        hex_rep += self.to_hex(resp, 2)                                         # Send response (fixed 2)
         hex_rep += "{0:#0{1}}".format(0, 4)                                     # not used (fixed 2)
         return hex_rep
     
@@ -79,8 +79,11 @@ class NanonisTCP:
         return hex(struct.unpack('<I', struct.pack('<f', f32))[0])[2:]          # float32 to hex
     
     def to_hex(self,conv,num_bytes):
-        if(conv >= 0): return "{0:#0{1}}".format(int(format(conv, 'x')), 2*num_bytes)
+        if(conv >= 0): return hex(conv)[2:].zfill(2*num_bytes)
         if(conv < 0):  return hex((conv + (1 << 8*num_bytes)) % (1 << 8*num_bytes))[2:]
+    
+    def string_to_hex(self,string):
+        return string.encode('utf-8').hex()
     
     def send_command(self, message):
         """
