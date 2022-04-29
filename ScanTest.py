@@ -48,7 +48,7 @@ print("----------------------------------------------------------------------")
 """
 Buffer Parameters Set/Get
 """
-scan.BufferSet([0,5], 512, 512)
+scan.BufferSet(channel_indexes=[0,14],pixels=128,lines=128)
 num_channels,channel_indexes,pixels,lines = scan.BufferGet()
 print("Buffer Parameters")
 print("Buffer num_channels:    " + str(num_channels))
@@ -60,6 +60,49 @@ print("----------------------------------------------------------------------")
 """
 Props Set/Get
 """
-scan.PropsSet()
+scan.PropsSet(bouncy_scan=1,comment="testing123")
+continuous_scan,bouncy_scan,autosave,series_name,comment = scan.PropsGet()
+print("Props Parameters")
+print("Props continuous_scan: " + str(continuous_scan))
+print("Props bouncy_scan:     " + str(bouncy_scan))
+print("Props autosave:        " + str(autosave))
+print("Props series_name:     " + str(series_name))
+print("Props comment:         " + str(comment))
+print("----------------------------------------------------------------------")
+
+"""
+Speed Set/Get
+"""
+# Best practice here is to define at least (fwd_speed or fwd_line_time) + (corresponding bwd param or speed_ratio)
+# e.g. one of these...
+# scan.SpeedSet(fwd_speed=150e-9,bwd_speed=400e-9)                              # Expect speeds to be set accordingly and constant param = line speed
+# scan.SpeedSet(fwd_line_time=1,bwd_line_time=0.25)                             # Expect times to be set accordingly and constant param = line time
+# scan.SpeedSet(fwd_speed=150e-9,speed_ratio=2)                                 # Expect fwd_speed=150e-9 and bwd_speed=300e-9
+scan.SpeedSet(fwd_line_time=1,speed_ratio=2)                                    # Expect fwd_line_time=1s and bwd_line_time=0.5s
+
+fwd_speed,bwd_speed,fwd_line_time,bwd_line_time,const_param,speed_ratio = scan.SpeedGet()
+print("Scan Speed Parameters")
+print("Forward speed:      " + str(fwd_speed))
+print("Backward speed:     " + str(bwd_speed))
+print("Forward line time:  " + str(fwd_line_time))
+print("Backward line time: " + str(bwd_line_time))
+print("Constant Param:     " + ["Constant speed", "Constant time"][const_param])
+print("Speed ratio:        " + str(speed_ratio))
+print("----------------------------------------------------------------------")
+
+"""
+FrameDataGrab
+"""
+channel_name,scan_data,scan_direction = scan.FrameDataGrab(14, 1)
+print("Frame Data")
+print("Channel name:   " + channel_name)
+print("Scan direction: " + ["Down","Up"][scan_direction])
+print("Run commented code to show scan_data")
+# import matplotlib.pyplot as plt
+# import matplotlib
+# fig = plt.figure()
+# ax = fig.add_subplot(111)
+# ax.imshow(scan_data)
+print("----------------------------------------------------------------------")
 
 NTCP.close_connection()

@@ -11,7 +11,7 @@ import socket
 
 
 class NanonisTCP:
-    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=1024):
+    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=1024*100):
         """
         Parameters
         IP              : Listening IP address
