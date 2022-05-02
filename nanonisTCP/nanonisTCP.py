@@ -10,8 +10,8 @@ import struct
 import socket
 
 
-class NanonisTCP:
-    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=1024*100):
+class nanonisTCP:
+    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=200):
         """
         Parameters
         IP              : Listening IP address
@@ -103,6 +103,10 @@ class NanonisTCP:
         
         """
         response = self.s.recv(self.max_buf_size)                               # Read the response
+        body_size = self.hex_to_int32(response[32:36])
+        while(True): 
+            if(len(response) == body_size + 40): break                          # body_size + header size (40)
+            response += self.s.recv(self.max_buf_size)
         
         if(error_index > -1): self.check_error(response[40:],error_index)       # error_index < 0 skips error check
         
