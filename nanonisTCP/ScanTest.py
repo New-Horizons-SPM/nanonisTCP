@@ -110,9 +110,9 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, make_plot=False):
             ax.imshow(scan_data)
         print("----------------------------------------------------------------------")
 
-        NTCP.close_connection()
     except:
         print('error')
-        NTCP.close_connection()
+    
+    NTCP.close_connection()
 
     return print('end of test')
