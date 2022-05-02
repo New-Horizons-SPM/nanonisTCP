@@ -9,8 +9,8 @@ class FolMe:
     """
     Nanonis Follow Me Module
     """
-    def __init__(self, NanonisTCP):
-        self.NanonisTCP = NanonisTCP
+    def __init__(self, nanonisTCP):
+        self.nanonisTCP = nanonisTCP
     
     def XYPosSet(self, X, Y, Wait_end_of_move=False):
         """
@@ -26,16 +26,16 @@ class FolMe:
                            True: Waits until tip stops moving
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.XYPosSet', body_size=20)
+        hex_rep = self.nanonisTCP.make_header('FolMe.XYPosSet', body_size=20)
         
         ## arguments
-        hex_rep += self.NanonisTCP.float64_to_hex(X)
-        hex_rep += self.NanonisTCP.float64_to_hex(Y)
-        hex_rep += self.NanonisTCP.to_hex(Wait_end_of_move,4)
+        hex_rep += self.nanonisTCP.float64_to_hex(X)
+        hex_rep += self.nanonisTCP.float64_to_hex(Y)
+        hex_rep += self.nanonisTCP.to_hex(Wait_end_of_move,4)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
 
     def XYPosGet(self, Wait_for_newest_data):
         """
@@ -50,18 +50,18 @@ class FolMe:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.XYPosGet', body_size=4)
+        hex_rep = self.nanonisTCP.make_header('FolMe.XYPosGet', body_size=4)
         
         # arguments
-        hex_rep += self.NanonisTCP.to_hex(Wait_for_newest_data,4)
+        hex_rep += self.nanonisTCP.to_hex(Wait_for_newest_data,4)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         ## Receive Response
-        response = self.NanonisTCP.receive_response(16)
+        response = self.nanonisTCP.receive_response(16)
         
-        xpos = self.NanonisTCP.hex_to_float64(response[0:8])
-        ypos = self.NanonisTCP.hex_to_float64(response[8:16])
+        xpos = self.nanonisTCP.hex_to_float64(response[0:8])
+        ypos = self.nanonisTCP.hex_to_float64(response[8:16])
         
         return (xpos,ypos)
     
@@ -76,16 +76,16 @@ class FolMe:
                                 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.SpeedSet', body_size=8)
+        hex_rep = self.nanonisTCP.make_header('FolMe.SpeedSet', body_size=8)
         
         # arguments
-        hex_rep += self.NanonisTCP.float32_to_hex(speed)
-        hex_rep += self.NanonisTCP.to_hex(custom_speed,4)
+        hex_rep += self.nanonisTCP.float32_to_hex(speed)
+        hex_rep += self.nanonisTCP.to_hex(custom_speed,4)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response (check for errors)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
     
     def SpeedGet(self):
         """
@@ -99,15 +99,15 @@ class FolMe:
                                 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.SpeedGet', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('FolMe.SpeedGet', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response
-        response = self.NanonisTCP.receive_response(8)
+        response = self.nanonisTCP.receive_response(8)
         
-        speed        = self.NanonisTCP.hex_to_float32(response[0:4])
-        custom_speed = self.NanonisTCP.hex_to_uint32(response[4:8]) > 0
+        speed        = self.nanonisTCP.hex_to_float32(response[0:4])
+        custom_speed = self.nanonisTCP.hex_to_uint32(response[4:8]) > 0
         
         return (speed,custom_speed)
     
@@ -121,15 +121,15 @@ class FolMe:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.OversamplSet', body_size=4)
+        hex_rep = self.nanonisTCP.make_header('FolMe.OversamplSet', body_size=4)
         
         # arguments
-        hex_rep += self.NanonisTCP.to_hex(Oversampling,4)
+        hex_rep += self.nanonisTCP.to_hex(Oversampling,4)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response (check for errors only)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
     
     def OversamplGet(self):
         """
@@ -142,15 +142,15 @@ class FolMe:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.OversamplGet', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('FolMe.OversamplGet', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response
-        response = self.NanonisTCP.receive_response(8)
+        response = self.nanonisTCP.receive_response(8)
         
-        oversampling = self.NanonisTCP.hex_to_int32(response[0:4])
-        sample_rate  = self.NanonisTCP.hex_to_float32(response[4:8])
+        oversampling = self.nanonisTCP.hex_to_int32(response[0:4])
+        sample_rate  = self.nanonisTCP.hex_to_float32(response[4:8])
         
         return (oversampling, sample_rate)
     
@@ -160,12 +160,12 @@ class FolMe:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.Stop', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('FolMe.Stop', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response (check errors)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
     
     def PSOnOffSet(self,ps_status):
         """
@@ -177,15 +177,15 @@ class FolMe:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.PSOnOffSet', body_size=4)
+        hex_rep = self.nanonisTCP.make_header('FolMe.PSOnOffSet', body_size=4)
         
         # arguments
-        hex_rep += self.NanonisTCP.to_hex(ps_status,4)
+        hex_rep += self.nanonisTCP.to_hex(ps_status,4)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response (check errors)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
         
     def PSOnOffGet(self):
         """
@@ -197,14 +197,14 @@ class FolMe:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('FolMe.PSOnOffGet', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('FolMe.PSOnOffGet', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive Response
-        response = self.NanonisTCP.receive_response(4)
+        response = self.nanonisTCP.receive_response(4)
         
-        ps_status = self.NanonisTCP.hex_to_uint32(response[0:4]) > 0
+        ps_status = self.nanonisTCP.hex_to_uint32(response[0:4]) > 0
         
         return ps_status
     

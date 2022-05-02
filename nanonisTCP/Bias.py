@@ -9,8 +9,8 @@ class Bias:
     """
     Nanonis Bias Module
     """
-    def __init__(self, NanonisTCP):
-        self.NanonisTCP = NanonisTCP
+    def __init__(self, nanonisTCP):
+        self.nanonisTCP = nanonisTCP
     
     def Set(self, bias):
         """
@@ -20,14 +20,14 @@ class Bias:
         bias (float32): bias (V)
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.Set', body_size=4)
+        hex_rep = self.nanonisTCP.make_header('Bias.Set', body_size=4)
         
         ## Arguments
-        hex_rep += self.NanonisTCP.float32_to_hex(bias)                         # bias (float 32)
+        hex_rep += self.nanonisTCP.float32_to_hex(bias)                         # bias (float 32)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
     
     def Get(self):
         """
@@ -38,13 +38,13 @@ class Bias:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.Get', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('Bias.Get', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
-        response = self.NanonisTCP.receive_response(4)
+        response = self.nanonisTCP.receive_response(4)
         
-        bias = self.NanonisTCP.hex_to_float32(response[0:4])
+        bias = self.nanonisTCP.hex_to_float32(response[0:4])
         return bias
     
     def RangeSet(self,bias_range_index):
@@ -57,15 +57,15 @@ class Bias:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.RangeSet', body_size=2)
+        hex_rep = self.nanonisTCP.make_header('Bias.RangeSet', body_size=2)
         
         ## Arguments
-        hex_rep += self.NanonisTCP.to_hex(bias_range_index,2)                   # uint16
+        hex_rep += self.nanonisTCP.to_hex(bias_range_index,2)                   # uint16
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive response (check errors)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
         
     def RangeGet(self):
         """
@@ -79,26 +79,26 @@ class Bias:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.RangeGet', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('Bias.RangeGet', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive response
-        response = self.NanonisTCP.receive_response()                           # Not checking for errors because return arguments are variable size
+        response = self.nanonisTCP.receive_response()                           # Not checking for errors because return arguments are variable size
         
-        # bias_ranges_size = self.NanonisTCP.hex_to_int32(response[0:4])        # Not needed.
+        # bias_ranges_size = self.nanonisTCP.hex_to_int32(response[0:4])        # Not needed.
         
-        number_of_ranges = self.NanonisTCP.hex_to_int32(response[4:8])
+        number_of_ranges = self.nanonisTCP.hex_to_int32(response[4:8])
         bias_ranges      = []
         idx = 8
         for i in range(number_of_ranges):
-            size = self.NanonisTCP.hex_to_uint32(response[idx:idx+4])
+            size = self.nanonisTCP.hex_to_uint32(response[idx:idx+4])
             
             idx += 4
             bias_ranges.append(response[idx:idx+size].decode())
             idx += size
             
-        bias_range_index = self.NanonisTCP.hex_to_uint16(response[idx:idx+2])
+        bias_range_index = self.nanonisTCP.hex_to_uint16(response[idx:idx+2])
         
         return [bias_ranges, bias_range_index]
     
@@ -113,16 +113,16 @@ class Bias:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.CalibrSet', body_size=8)
+        hex_rep = self.nanonisTCP.make_header('Bias.CalibrSet', body_size=8)
         
         ## Arguments
-        hex_rep += self.NanonisTCP.float32_to_hex(calibration)
-        hex_rep += self.NanonisTCP.float32_to_hex(offset)
+        hex_rep += self.nanonisTCP.float32_to_hex(calibration)
+        hex_rep += self.nanonisTCP.float32_to_hex(offset)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive response (check errors)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)
     
     def CalibrGet(self):
         """
@@ -135,15 +135,15 @@ class Bias:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.CalibrGet', body_size=0)
+        hex_rep = self.nanonisTCP.make_header('Bias.CalibrGet', body_size=0)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive response
-        response = self.NanonisTCP.receive_response(8)
+        response = self.nanonisTCP.receive_response(8)
         
-        calibration = self.NanonisTCP.hex_to_float32(response[0:4])
-        offset      = self.NanonisTCP.hex_to_float32(response[4:8])
+        calibration = self.nanonisTCP.hex_to_float32(response[0:4])
+        offset      = self.nanonisTCP.hex_to_float32(response[4:8])
         
         return [calibration,offset]
     
@@ -170,16 +170,16 @@ class Bias:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('Bias.Pulse', body_size=16)
+        hex_rep = self.nanonisTCP.make_header('Bias.Pulse', body_size=16)
         
         ## Arguments
-        hex_rep += self.NanonisTCP.to_hex(wait_until_done,4)
-        hex_rep += self.NanonisTCP.float32_to_hex(bias_pulse_width)
-        hex_rep += self.NanonisTCP.float32_to_hex(bias_value)
-        hex_rep += self.NanonisTCP.to_hex(z_hold,2)
-        hex_rep += self.NanonisTCP.to_hex(rel_abs,2)
+        hex_rep += self.nanonisTCP.to_hex(wait_until_done,4)
+        hex_rep += self.nanonisTCP.float32_to_hex(bias_pulse_width)
+        hex_rep += self.nanonisTCP.float32_to_hex(bias_value)
+        hex_rep += self.nanonisTCP.to_hex(z_hold,2)
+        hex_rep += self.nanonisTCP.to_hex(rel_abs,2)
         
-        self.NanonisTCP.send_command(hex_rep)
+        self.nanonisTCP.send_command(hex_rep)
         
         # Receive response (check errors)
-        self.NanonisTCP.receive_response(0)
+        self.nanonisTCP.receive_response(0)

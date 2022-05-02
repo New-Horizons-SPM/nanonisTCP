@@ -10,7 +10,7 @@ import struct
 import socket
 
 
-class NanonisTCP:
+class nanonisTCP:
     def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=1024*100):
         """
         Parameters
