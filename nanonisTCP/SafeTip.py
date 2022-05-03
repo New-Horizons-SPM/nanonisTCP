@@ -7,7 +7,7 @@ Created on Tue May  3 15:13:02 2022
 
 class SafeTip:
     """
-    Nanonis Z-Controller Module
+    Nanonis SafeTip Module
     """
     def __init__(self, NanonisTCP):
         self.NanonisTCP = NanonisTCP
