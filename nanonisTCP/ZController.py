@@ -7,7 +7,7 @@ Created on Mon May  2 15:32:25 2022
 
 class ZController:
     """
-    Nanonis BZ-Controller Module
+    Nanonis Z-Controller Module
     """
     def __init__(self, NanonisTCP):
         self.NanonisTCP = NanonisTCP
