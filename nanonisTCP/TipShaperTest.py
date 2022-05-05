@@ -6,7 +6,7 @@ Created on Thu May  5 11:14:19 2022
 """
 
 from nanonisTCP import nanonisTCP
-from nanonisTCP.SafeTip import TipShaper
+from nanonisTCP.TipShaper import TipShaper
 
 """
 Set up the TCP connection and interface
@@ -16,7 +16,7 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, make_plot=False):
     # Listening Port: see Nanonis File>Settings>TCP Programming Interface
     NTCP = nanonisTCP(TCP_IP, TCP_PORT)                                         # Nanonis TCP interface
     
-    tipShaper = TipShaper(NTCP)                                                 # Nanonis Safe Tip Module
+    tipShaper = TipShaper(NTCP)                                                 # Nanonis Tip Shaper Module
     
     try:
               
