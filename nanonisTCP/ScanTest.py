@@ -100,7 +100,7 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, make_plot=False):
         channel_name,scan_data,scan_direction = scan.FrameDataGrab(14, 1)
         print("Frame Data")
         print("Channel name:   " + channel_name)
-        print("Scan direction: " + ["Down","Up"][scan_direction])
+        print("Scan direction: " + scan_direction)
         print("Run commented code to show scan_data")
         if make_plot == True:
             import matplotlib.pyplot as plt

@@ -456,5 +456,6 @@ class Scan:
             
         idx += 4
         scan_direction = self.nanonisTCP.hex_to_int32(response[idx:idx+4])
+        scan_direction = ["down","up"][scan_direction]
         
         return [channel_name,scan_data,scan_direction]
