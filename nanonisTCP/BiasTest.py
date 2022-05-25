@@ -33,6 +33,10 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501):
         """
         bias.RangeSet(0)
         bias_ranges, bias_range_index = bias.RangeGet()
+        print("Bias Range")
+        print("Ranges:      " + str(bias_ranges))
+        print("Range index: " + str(bias_range_index))
+        print("----------------------------------------------------------------------")
 
         """
         Calibration Set/Get
