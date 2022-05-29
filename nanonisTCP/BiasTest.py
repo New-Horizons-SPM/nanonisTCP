@@ -3,8 +3,14 @@
 """
 Created on Tue Mar 29 16:56:08 2022
 
-@author: jack
+@author: Julian Ceddia
 """
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!WARNING: RUNNING run_test() WILL CHANGE SETTINGS IN NANONIS. RUN IT ON A SIM!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+"""
+
 
 from nanonisTCP import nanonisTCP
 from nanonisTCP.Bias import Bias

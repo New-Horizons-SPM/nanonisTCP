@@ -2,8 +2,14 @@
 """
 Created on Tue May  3 19:09:44 2022
 
-@author: Julian
+@author: Julian Ceddia
 """
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!WARNING: RUNNING run_test() WILL AUTO APPROACH YOUR TIP. RUN IT ON A SIM!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+"""
+
 
 from nanonisTCP import nanonisTCP
 from nanonisTCP.AutoApproach import AutoApproach

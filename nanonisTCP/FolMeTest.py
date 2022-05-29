@@ -2,8 +2,14 @@
 """
 Created on Mon Apr 25 15:26:23 2022
 
-@author: jced0001
+@author: Julian Ceddia
 """
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!WARNING: RUNNING run_test() WILL CHANGE SETTINGS IN NANONIS. RUN IT ON A SIM!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+"""
+
 
 from nanonisTCP import nanonisTCP
 from nanonisTCP.FolMe import FolMe

@@ -2,7 +2,7 @@
 """
 Created on Tue May  3 19:26:25 2022
 
-@author: Julian
+@author: Julian Ceddia
 """
 
 class Motor:
