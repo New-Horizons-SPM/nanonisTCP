@@ -3,7 +3,7 @@
 """
 Created on Tue Mar 29 11:25:57 2022
 
-@author: jack
+@author: Julian Ceddia and Jack Hellerstedt
 """
 
 import struct

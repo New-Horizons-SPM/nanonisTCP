@@ -2,7 +2,7 @@
 """
 Created on Mon May  2 15:32:25 2022
 
-@author: jced0001
+@author: Julian Ceddia
 """
 
 class ZController:

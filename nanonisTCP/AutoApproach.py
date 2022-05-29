@@ -2,7 +2,7 @@
 """
 Created on Tue May  3 19:04:05 2022
 
-@author: Julian
+@author: Julian Ceddia
 """
 
 class AutoApproach:
