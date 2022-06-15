@@ -48,7 +48,7 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501):
         """
         Compensation Set/Get
         """
-        piezo.DriftCompSet(on=True,vx=1e-15,vy=2e-15,vz=3e-15)
+        piezo.DriftCompSet(on=False,vx=1e-15,vy=2e-15,vz=3e-15)
         status,vx,vy,vz,xstat,ystat,zstat = piezo.DriftCompGet()
         print("Piezo drift compensation")
         print("Status: " + str(status))

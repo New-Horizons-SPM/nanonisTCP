@@ -155,9 +155,9 @@ class Piezo:
 
         """
         _,n_vx,n_vy,n_vz,_,_,_ = self.DriftCompGet()
-        if(not vx): vx = n_vx
-        if(not vy): vy = n_vy
-        if(not vz): vz = n_vz
+        if(not len(vx)): vx = n_vx
+        if(not len(vy)): vy = n_vy
+        if(not len(vz)): vz = n_vz
     
         hex_rep = self.NanonisTCP.make_header('Piezo.DriftCompSet', body_size=16)
         ## Arguments
