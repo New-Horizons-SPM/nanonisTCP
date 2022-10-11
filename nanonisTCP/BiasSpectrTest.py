@@ -14,6 +14,7 @@ from nanonisTCP import nanonisTCP
 # from nanonisTCP.BiasSpectr import BiasSpectr
 from BiasSpectr import BiasSpectr
 import traceback
+import time
 
 def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
     # Listening Port: see Nanonis File>Settings>TCP Programming Interface
@@ -38,6 +39,25 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         print("data channels: " + str(data_dict.keys()))
         print("parameters:    " + str(parameters))
         print("----------------------------------------------------------------------")
+        
+        """
+        Stop
+        """
+        bspec.Stop()
+        print("Stopped spec")
+        print("----------------------------------------------------------------------")
+        
+        """
+        Status Get
+        """
+        status = bspec.StatusGet()
+        print("Status: " + ["Not running","Running"][status])
+        print("----------------------------------------------------------------------")
+        
+        """
+        ChsSet/Get
+        """
+        
     except:
         print(traceback.format_exc())
         
