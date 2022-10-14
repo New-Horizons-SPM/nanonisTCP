@@ -57,7 +57,8 @@ class BiasSpectr:
 
         """
         body_size = 4 + 4                                                       # 4 bytes for get_data (uint32) and 4 bytes for save_base_name_string_size (int)
-        body_size = int(len(self.NanonisTCP.string_to_hex(save_base_name))/2)   # Variable size depending on the save_base_name string
+        body_size += int(len(self.NanonisTCP.string_to_hex(save_base_name))/2)   # Variable size depending on the save_base_name string
+        
         ## Make Header
         hex_rep = self.NanonisTCP.make_header('BiasSpectr.Start', body_size=body_size)
         
@@ -71,10 +72,12 @@ class BiasSpectr:
         
         self.NanonisTCP.send_command(hex_rep)
         
+        if(not get_data == 1):
+            response = self.NanonisTCP.receive_response(0)
+            return
+        
         # Receive Response
         response = self.NanonisTCP.receive_response()
-        
-        if(not get_data): return
         
         # channels_names_size = self.NanonisTCP.hex_to_int32(response[0:4])     # Useless
         number_of_channels  = self.NanonisTCP.hex_to_int32(response[4:8])
@@ -183,7 +186,7 @@ class BiasSpectr:
         
         ## arguments
         hex_rep += self.NanonisTCP.to_hex(number_of_channels,4)
-        for index in range(channel_indexes):
+        for index in channel_indexes:
             hex_rep += self.NanonisTCP.to_hex(index,4)
         
         self.NanonisTCP.send_command(hex_rep)
@@ -263,7 +266,7 @@ class BiasSpectr:
         hex_rep += self.NanonisTCP.to_hex(num_sweeps,4)
         hex_rep += self.NanonisTCP.to_hex(back_sweep,2)
         hex_rep += self.NanonisTCP.to_hex(num_points,4)
-        hex_rep += self.NanonisTCP.float32_to_hex(z_offset,4)
+        hex_rep += self.NanonisTCP.float32_to_hex(z_offset)
         hex_rep += self.NanonisTCP.to_hex(autosave,2)
         hex_rep += self.NanonisTCP.to_hex(save_dialog,2)
         
@@ -606,6 +609,232 @@ class BiasSpectr:
         return {"alternate_setpoint_onoff"  : alternate_setpoint_onoff,
                 "setpoint"                  : setpoint,
                 "settling_time"             : settling_time}
+    
+    def MLSLockinPerSegSet(self,lockin_per_segment):
+        """
+        Sets the Lock-In Per Segment flag in the multi line segment editor
         
+        When selected, the Lock-In can be defined per segment in the Multi line 
+        segment editor. Otherwise, the Lock-In is set globally according to the 
+        flag in the Advanced section of Bias spectroscopy
+
+        Parameters
+        ----------
+        lockin_per_segment : 0: off; 1: on
+
+        """
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.MLSLockinPerSegSet', body_size=4)
         
+        ## arguments
+        hex_rep += self.NanonisTCP.to_hex(lockin_per_segment,4)
         
+        self.NanonisTCP.send_command(hex_rep)
+        
+        self.NanonisTCP.receive_response(0)
+        
+    def MLSLockinPerSegGet(self):
+        """
+        Returns the Lock-In per Segment flag in the Multi line segment editor.
+        When selected, the Lock-In can be defined per segment in the Multi line
+        segment editor. Otherwise, the Lock-In is set globally according to the 
+        flag in the Advanced section of Bias spectroscopy
+
+        Returns
+        -------
+        lockin_per_segment : 0: off; 1: on
+
+        """
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.MLSLockinPerSegGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        response = self.NanonisTCP.receive_response()
+        
+        lockin_per_segment = self.NanonisTCP.hex_to_uint32(response[0:4])
+        
+        return lockin_per_segment
+    
+    def MLSModeSet(self,sweep_mode):
+        """
+        Sets the Bias Spectroscopy sweep mode.
+
+        Parameters
+        ----------
+        sweep_mode : "linear" for linear or "MLS" for MultiSegment mode
+
+        """
+        if(sweep_mode.lower() == "linear"): sweep_mode = "Linear"
+        if(sweep_mode.lower() == "mls"):    sweep_mode = "MLS"
+        sweep_mode_size = len(sweep_mode)
+        
+        body_size = 4 + int(len(self.NanonisTCP.string_to_hex(sweep_mode))/2)
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.MLSModeSet', body_size=body_size)
+        
+        ## arguments
+        hex_rep += self.NanonisTCP.to_hex(sweep_mode_size,4)
+        hex_rep += self.NanonisTCP.string_to_hex(sweep_mode)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        self.NanonisTCP.receive_response(0)
+    
+    def MLSModeGet(self):
+        """
+        Returns the Bias Spectroscopy sweep mode.
+
+        Returns
+        -------
+        sweep_mode : "linear" for linear or "MLS" for MultiSegment mode
+
+        """
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.MLSModeGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        response = self.NanonisTCP.receive_response()
+        
+        sweep_mode = response[4:].decode()
+        
+        return sweep_mode
+    
+    def MLSValsSet(self,bias_start,bias_end,initial_settling_time,settling_time,integration_time,steps,lockin_run):
+        """
+        Sets the bias spectroscopy multiple line segment configuration for 
+        Multi Line Segment mode. Up to 16 distinct line segments may be 
+        defined. Any segments beyond the maximum allowed amount will be ignored
+        
+        Parameters (all type list)
+        ----------
+        bias_start              : list of bias start values for each segment (V)
+        bias_end                : list of bias end values for each segment (V)
+        initial_settling_time   : time to wait at begining of each segment
+                                  before Lock-In setting is applied (s)
+        settling_time           : time to wait before measuring each data point
+                                  for each segment (s)
+        integration_time        : integration time for each data point for 
+                                  each segment (s)
+        steps                   : number of steps to measure in each segment
+        lockin_run              : indicates if the Lock-In will run during the 
+                                  segment. This is true only if the global 
+                                  Lock-In per Segment flag is enabled.
+                                  Otherwise, the Lock-In is set globally 
+                                  according to the flag in the Advanced section 
+                                  of Bias spectroscopy
+        """
+        if(not type(bias_start) is list): bias_start = [bias_start]
+        if(not type(bias_end) is list): bias_end = [bias_end]
+        if(not type(initial_settling_time) is list): initial_settling_time = [initial_settling_time]
+        if(not type(settling_time) is list): settling_time = [settling_time]
+        if(not type(integration_time) is list): integration_time = [integration_time]
+        if(not type(steps) is list): steps = [steps]
+        if(not type(lockin_run) is list): lockin_run = [lockin_run]
+        
+        num_segments = len(bias_start)
+        
+        body_size = 4 + num_segments*(4 + 4 + 4 + 4 + 4 + 4 + 4)
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.MLSValsSet', body_size=body_size)
+        
+        hex_rep += self.NanonisTCP.to_hex(num_segments,4)
+        
+        for p in bias_start:
+            hex_rep += self.NanonisTCP.float32_to_hex(p)
+            
+        for p in bias_end:
+            hex_rep += self.NanonisTCP.float32_to_hex(p)
+            
+        for p in initial_settling_time:
+            hex_rep += self.NanonisTCP.float32_to_hex(p)
+            
+        for p in settling_time:
+            hex_rep += self.NanonisTCP.float32_to_hex(p)
+            
+        for p in integration_time:
+            hex_rep += self.NanonisTCP.float32_to_hex(p)
+            
+        for p in steps:
+            hex_rep += self.NanonisTCP.to_hex(p,4)
+            
+        for p in lockin_run:
+            hex_rep += self.NanonisTCP.to_hex(p,4)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        self.NanonisTCP.receive_response(0)
+    
+    def MLSValsGet(self):
+        """
+        Returns the bias spectroscopy multiple line segment configuration for 
+        Multi Line Segment mode. Up to 16 distinct line segments may be defined.
+
+        Returns
+        -------
+        bias_start              : list of bias start values for each segment (V)
+        bias_end                : list of bias end values for each segment (V)
+        initial_settling_time   : time to wait at begining of each segment
+                                  before Lock-In setting is applied (s)
+        settling_time           : time to wait before measuring each data point
+                                  for each segment (s)
+        integration_time        : integration time for each data point for 
+                                  each segment (s)
+        steps                   : number of steps to measure in each segment
+        lockin_run              : indicates if the Lock-In will run during the 
+                                  segment. This is true only if the global 
+                                  Lock-In per Segment flag is enabled.
+                                  Otherwise, the Lock-In is set globally 
+                                  according to the flag in the Advanced section 
+                                  of Bias spectroscopy
+
+        """
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.MLSValsGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        response = self.NanonisTCP.receive_response()
+        
+        num_segments = self.NanonisTCP.hex_to_int32(response[0:4])
+        
+        idx = 4
+        bias_start = []
+        for p in range(num_segments):
+            bias_start.append(self.NanonisTCP.hex_to_float32(response[idx:idx+4]))
+            idx += 4
+            
+        bias_end = []
+        for p in range(num_segments):
+            bias_end.append(self.NanonisTCP.hex_to_float32(response[idx:idx+4]))
+            idx += 4
+            
+        initial_settling_time = []
+        for p in range(num_segments):
+            initial_settling_time.append(self.NanonisTCP.hex_to_float32(response[idx:idx+4]))
+            idx += 4
+            
+        settling_time = []
+        for p in range(num_segments):
+            settling_time.append(self.NanonisTCP.hex_to_float32(response[idx:idx+4]))
+            idx += 4
+        
+        integration_time = []
+        for p in range(num_segments):
+            integration_time.append(self.NanonisTCP.hex_to_float32(response[idx:idx+4]))
+            idx += 4
+            
+        steps = []
+        for p in range(num_segments):
+            steps.append(self.NanonisTCP.hex_to_int32(response[idx:idx+4]))
+            idx += 4
+            
+        lockin_run = []
+        for p in range(num_segments):
+            lockin_run.append(self.NanonisTCP.hex_to_uint32(response[idx:idx+4]))
+            idx += 4
+        
+        retDict = {"bias_start"             : bias_start,
+                   "bias_end"               : bias_end,
+                   "initial_settling_time"  : initial_settling_time,
+                   "settling_time"          : settling_time,
+                   "integration_time"       : integration_time,
+                   "steps"                  : steps,
+                   "lockin_run"             : lockin_run}
+        
+        return retDict
