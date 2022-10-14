@@ -11,10 +11,8 @@ Created on Wed Aug 24 23:12:28 2022
 """
 
 from nanonisTCP import nanonisTCP
-# from nanonisTCP.BiasSpectr import BiasSpectr
-from BiasSpectr import BiasSpectr
+from nanonisTCP.BiasSpectr import BiasSpectr
 import traceback
-import time
 import numpy as np
 
 def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
@@ -54,7 +52,6 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         # Stop command on a separate port.
         
         # bspec.Start(get_data=0,save_base_name="NTCP-Test-Stop-")              # Can't do this to test. must be started and stopped on separate ports
-        # time.sleep(4)
         
         bspec.Stop()
         print("Acquisition stopped")
