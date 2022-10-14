@@ -330,7 +330,7 @@ class LockIn:
                            register (Hz)
 
         """
-        hex_rep = self.NanonisTCP.make_header('LockIn.ModPhasFreqSet', body_size=8)
+        hex_rep = self.NanonisTCP.make_header('LockIn.ModPhasFreqSet', body_size=12)
         
         ## arguments
         hex_rep += self.NanonisTCP.to_hex(modulator_number,4)
@@ -367,6 +367,6 @@ class LockIn:
         
         response = self.NanonisTCP.receive_response()
         
-        frequency = self.NanonisTCP.hex_to_float64(response[0:4])
+        frequency = self.NanonisTCP.hex_to_float64(response[0:8])
         
         return frequency
