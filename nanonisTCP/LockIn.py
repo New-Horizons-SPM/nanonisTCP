@@ -420,7 +420,7 @@ class LockIn:
         
         response = self.NanonisTCP.receive_response()
         
-        demod_signal_index = self.NanonisTCP.hex_to_int(response[0:4])
+        demod_signal_index = self.NanonisTCP.hex_to_int32(response[0:4])
         
         return demod_signal_index
         
@@ -475,7 +475,7 @@ class LockIn:
         
         response = self.NanonisTCP.receive_response()
         
-        harmonic = self.NanonisTCP.hex_to_int(response[0:4])
+        harmonic = self.NanonisTCP.hex_to_int32(response[0:4])
         
         return harmonic
     
@@ -542,7 +542,7 @@ class LockIn:
         
         response = self.NanonisTCP.receive_response()
         
-        hp_filter_order = self.NanonisTCP.hex_to_int(response[0:4])
+        hp_filter_order = self.NanonisTCP.hex_to_int32(response[0:4])
         cutoff          = self.NanonisTCP.hex_to_float32(response[4:8])
         
         return {"hp_filter_order" : hp_filter_order,
@@ -612,7 +612,7 @@ class LockIn:
         
         response = self.NanonisTCP.receive_response()
         
-        lp_filter_order = self.NanonisTCP.hex_to_int(response[0:4])
+        lp_filter_order = self.NanonisTCP.hex_to_int32(response[0:4])
         cutoff          = self.NanonisTCP.hex_to_float32(response[4:8])
         
         return {"lp_filter_order" : lp_filter_order,
@@ -668,7 +668,7 @@ class LockIn:
         
         response = self.NanonisTCP.receive_response()
         
-        phase_register_index = self.NanonisTCP.hex_to_int(response[0:4])
+        phase_register_index = self.NanonisTCP.hex_to_int32(response[0:4])
         
         return phase_register_index
     
