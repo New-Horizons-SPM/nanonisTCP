@@ -1,5 +1,6 @@
+[![DOI](https://zenodo.org/badge/475187257.svg)](https://zenodo.org/badge/latestdoi/475187257)
 # nanonisTCP
-python module for communicating via nanonis TCP protocal. I am actively developing this so if you have any requests or find any bugs, feel free to raise an issue.
+Python module for communicating to nanonis via TCP. I am actively developing this so if you have any requests or find any bugs, feel free to raise an issue.
 
 ### Installing
 
@@ -31,3 +32,6 @@ NTCP.close_connection()             # Close the connection.
 ```
 
 See any of the xxxTest.py scripts to see how each module can be implemented in more detail
+
+### Citing
+If you use nanonisTCP, please consider citing it: 10.5281/zenodo.7402664
