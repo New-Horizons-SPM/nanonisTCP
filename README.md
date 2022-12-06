@@ -34,4 +34,4 @@ NTCP.close_connection()             # Close the connection.
 See any of the xxxTest.py scripts to see how each module can be implemented in more detail
 
 ### Citing
-If you use nanonisTCP, please consider citing it: 10.5281/zenodo.7402664
+If you use nanonisTCP, please consider citing it: [10.5281/zenodo.7402664](https://doi.org/10.5281/zenodo.7402664)
