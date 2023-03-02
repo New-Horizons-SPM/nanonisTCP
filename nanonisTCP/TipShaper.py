@@ -3,6 +3,9 @@
 Created on Wed May  4 13:52:22 2022
 
 @author: ben
+
+Updated by
+@author Julian Ceddia 3/3/22
 """
 
 class TipShaper:
@@ -38,11 +41,12 @@ class TipShaper:
         
         self.NanonisTCP.receive_response(0)
         
-    def PropsSet(self,Switch_off_delay,Change_bias, Bias, Tip_lift, Lift_time_1,
-                 Bias_lift, Bias_settling_time, Lift_height, Lift_time_2, 
-                 End_wait_time, Restore_feedback):
+    def PropsSet(self,Switch_off_delay="-default",Change_bias="-default", Bias="-default", Tip_lift="-default", Lift_time_1="-default",
+                 Bias_lift="-default", Bias_settling_time="-default", Lift_height="-default", Lift_time_2="-default", 
+                 End_wait_time="-default", Restore_feedback="-default"):
         """
-        Sets the configuration of the tip shaper procedure.
+        Sets the configuration of the tip shaper procedure. All inputs are 
+        optional... -default will leave the setting as is in Nanonis
 
         Parameters
         ----------
@@ -85,21 +89,40 @@ class TipShaper:
                             1 = True
 
         """
+        default_args = self.PropsGet()                                          # Store all the current tip shaping settings in nanonis
+        
+        # Order matters here
+        tipShaperArgs = [Switch_off_delay]
+        tipShaperArgs.append(Change_bias)
+        tipShaperArgs.append(Bias)
+        tipShaperArgs.append(Tip_lift)
+        tipShaperArgs.append(Lift_time_1)
+        tipShaperArgs.append(Bias_lift)
+        tipShaperArgs.append(Bias_settling_time)
+        tipShaperArgs.append(Lift_height)
+        tipShaperArgs.append(Lift_time_2)
+        tipShaperArgs.append(End_wait_time)
+        tipShaperArgs.append(Restore_feedback)
+        
+        for i,a in enumerate(tipShaperArgs):
+            if(a=="-default"):
+                tipShaperArgs[i] = default_args[i]
+                
         ## Make Header
         hex_rep = self.NanonisTCP.make_header('TipShaper.PropsSet', body_size=44)
         
         ## Arguments 
-        hex_rep += self.NanonisTCP.float32_to_hex(Switch_off_delay)
-        hex_rep += self.NanonisTCP.to_hex(Change_bias,4)
-        hex_rep += self.NanonisTCP.float32_to_hex(Bias)
-        hex_rep += self.NanonisTCP.float32_to_hex(Tip_lift)
-        hex_rep += self.NanonisTCP.float32_to_hex(Lift_time_1)
-        hex_rep += self.NanonisTCP.float32_to_hex(Bias_lift)
-        hex_rep += self.NanonisTCP.float32_to_hex(Bias_settling_time)
-        hex_rep += self.NanonisTCP.float32_to_hex(Lift_height)
-        hex_rep += self.NanonisTCP.float32_to_hex(Lift_time_2)
-        hex_rep += self.NanonisTCP.float32_to_hex(End_wait_time)
-        hex_rep += self.NanonisTCP.to_hex(Restore_feedback,4)
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[0])
+        hex_rep += self.NanonisTCP.to_hex(tipShaperArgs[1],4)
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[2])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[3])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[4])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[5])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[6])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[7])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[8])
+        hex_rep += self.NanonisTCP.float32_to_hex(tipShaperArgs[9])
+        hex_rep += self.NanonisTCP.to_hex(tipShaperArgs[10],4)
         
         self.NanonisTCP.send_command(hex_rep)
         
