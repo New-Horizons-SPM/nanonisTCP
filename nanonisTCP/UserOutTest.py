@@ -6,7 +6,7 @@ Created on Tue Feb 2 18:56:49 2024
 """
 
 from nanonisTCP import nanonisTCP
-from UserOut import UserOut
+from nanonisTCP.UserOut import UserOut
 
 """
 Set up the TCP connection and interface

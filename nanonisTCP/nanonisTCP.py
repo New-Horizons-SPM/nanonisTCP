@@ -24,7 +24,7 @@ class nanonisTCP:
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)              # Set up the connection
         self.s.connect((IP, PORT))                                              # Open the TCP connection.
-        
+
     def make_header(self, command_name, body_size, resp=True):
         """
         Parameters
@@ -135,6 +135,13 @@ class nanonisTCP:
             error_description = response[i:].decode()                           # just grab from start index to the end of the message
             raise Exception(error_description)                                  # raise the exception
         
+    
+    def connect(self):
+        """
+        Open a once closed connection
+        """
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)              # Set up the connection
+        self.s.connect((self.IP, self.PORT))                                    # Open the TCP connection.
         
     def close_connection(self):
         """
