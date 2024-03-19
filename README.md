@@ -4,10 +4,7 @@ Python module for communicating to nanonis via TCP. I am actively developing thi
 
 ### Installing
 
-Clone this repository, navigate to said directory, and run:
-```
-pip install .
-```
+Install with pip: ```pip install nanonisTCP```
 
 ### Using
 
