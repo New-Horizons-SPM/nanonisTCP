@@ -2,10 +2,11 @@
 
 from setuptools import setup, find_packages
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
-version = '0.1.0'
+version = '1.0.0'
 
 setup(
     name='nanonisTCP',
@@ -14,6 +15,7 @@ setup(
     author_email='jdceddia@gmail.com',
     description='python module for communicating via nanonis TCP protocal',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/New-Horizons-SPM/nanonisTCP',
     project_urls = {
         "Bug Tracker": "https://github.com/New-Horizons-SPM/nanonisTCP/issues"
