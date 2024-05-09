@@ -13,6 +13,7 @@ Created on Wed Aug 24 23:12:28 2022
 from nanonisTCP import nanonisTCP
 from nanonisTCP.BiasSpectr import BiasSpectr
 import numpy as np
+import time
 import traceback
 
 def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0, debug=False, version=13520):
@@ -28,6 +29,7 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0, debug=False, versio
         if(debug):
             print("Bias Spectroscopy module open")
             print("----------------------------------------------------------------------")
+        time.sleep(0.5)
         
         """
         Start
