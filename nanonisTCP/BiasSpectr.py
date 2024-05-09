@@ -13,6 +13,7 @@ class BiasSpectr:
     """
     def __init__(self,NanonisTCP):
         self.NanonisTCP = NanonisTCP
+        self.version = NanonisTCP.version
         
     def Open(self):
         """
@@ -145,16 +146,25 @@ class BiasSpectr:
         
     def ChsSet(self,channel_indexes,mode="set"):
         """
-        Sets/adds/removes the list of recortded channels in Bias Spectroscopy
+        Sets/adds/removes the list of recorded channels in Bias Spectroscopy
 
         Parameters
         ----------
-        channel_indexes : channel indexes to set, add, or remove. The indexes 
+        channel_indexes : Nanonis v < R11798, use slot number:
+                          channel indexes to set, add, or remove. The indexes 
                           are comprised between 0 and 23 for the 24 signals 
                           assigned in the Signals Manager. To get the signal 
                           name and its corresponding index in the list of 128 
                           available signals in the Nanonis Controller, use 
                           the Signals.InSlotsGet function
+
+                          Nanonis v >= R11798, use RT Index:
+                          indexes of recorded channels. The index is comprised between 0
+                          and 127, and it corresponds to the full list of signals available in the system.
+                          To get the signal name and its corresponding index in the list of the 128 available signals in the Nanonis
+                          Controller, use the Signal.NamesGet function, or check the RT Idx value in the Signals Manager module.
+
+
         mode            : "set"    : channel_indexes will become the entire 
                                      list of selected channels
                           "add"    : channel_indexes will be added to the list 
@@ -194,6 +204,10 @@ class BiasSpectr:
         self.NanonisTCP.receive_response(0)
         
     def ChsGet(self):
+        if(self.version  < 11798): return self.ChsGet_v0()
+        if(self.version >= 11798): return self.ChsGet_v1()
+
+    def ChsGet_v0(self):
         """
         Returns the list of recorded channels in Bias Spectroscopy
 
@@ -223,6 +237,53 @@ class BiasSpectr:
             idx += 4
         
         return channel_indexes
+    
+    def ChsGet_v1(self):
+        """
+        Returns the list of recorded channels in Bias Spectroscopy
+
+        Returns
+        -------
+        channel_indexes :  The index is comprised between 0
+                           and 127, and it corresponds to the 
+                           full list of signals available in 
+                           the system. To get the signal name
+                           and its corresponding index in the
+                           list of the 128 available signals
+                           in the Nanonis Controller, use the 
+                           Signal.NamesGet function, or check 
+                           the RT Idx value in the Signals 
+                           Manager module.
+        channel_names   :  Returns the names of the acquired
+                           channels in the sweep
+
+        """
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.ChsGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        response = self.NanonisTCP.receive_response()
+        
+        number_of_channels = self.NanonisTCP.hex_to_int32(response[0:4])
+        
+        idx = 4
+        channel_indexes = []
+        for i in range(number_of_channels):
+            channel_index = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+            channel_indexes.append(channel_index)
+            idx += 4
+        
+        # channels_size = self.NanonisTCP.hex_to_int32(response[12:16])         # Useless
+        idx += 4
+        channels_names = []
+        num_channels = len(channel_indexes)
+        for channel in range(num_channels):
+            channel_size = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+            idx += 4
+            channels_names.append(response[idx:idx+channel_size].decode())
+            idx += channel_size
+
+        return channel_indexes, channels_names
         
     def PropsSet(self,save_all=0,num_sweeps=0,back_sweep=0,num_points=0,z_offset=0,autosave=0,save_dialog=0):
         """
@@ -274,8 +335,12 @@ class BiasSpectr:
         self.NanonisTCP.send_command(hex_rep)
         
         self.NanonisTCP.receive_response(0)
-        
+    
     def PropsGet(self):
+        if(self.version  < 11798): return self.PropsGet_v0()
+        if(self.version >= 11798): return self.PropsGet_v1()
+        
+    def PropsGet_v0(self):
         """
         Returns the Bias Spectroscopy parameters
 
@@ -349,6 +414,83 @@ class BiasSpectr:
                 "channels"    : channels,
                 "parameters"  : parameters,
                 "fixed_parameters" : fixed_parameters}
+    
+    def PropsGet_v1(self):
+        """
+        Returns the Bias Spectroscopy parameters
+
+        Returns
+        -------
+        save_all : 1 : data from individual sweeps is saved, along with 
+                       averaged data.
+                   0 : Individual sweeps are not saved, only the average of 
+                       all of them is saved. This parameter only makes sense 
+                       when multiple sweeps are configured.
+        num_sweeps : Number of sweeps to measure and average. 0 means no change
+        back_sweep : Selects whether a backward sweep is acquired in addition 
+                     to the forward sweep (which is always acquired)
+                     0 : Don't acquire a backward sweep.
+                     1 : Acquire a backward sweep (in addition to the forward)
+        num_points : Defines the number of points to acquire over the sweep
+                     range. 0 means no change
+        parameters : Returns the parameters of the sweep
+        fixed_parameters : Returns the fixed parameters of the sweep
+        autosave    : Selects whether to automatically save the data to ASCII
+                      file once the sweep is done.
+                      0 : Autosave off
+                      1 : Autosave on
+        save_dialog : Selects whether to show the save dialog box once the 
+                      sweep is done
+                      0 : Don't show
+                      1 : Show
+        
+        """
+        hex_rep = self.NanonisTCP.make_header('BiasSpectr.PropsGet', body_size=0)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        response = self.NanonisTCP.receive_response()
+        
+        save_all   = self.NanonisTCP.hex_to_int16(response[0:2])
+        num_sweeps = self.NanonisTCP.hex_to_int32(response[2:6])
+        back_sweep = self.NanonisTCP.hex_to_int16(response[6:8])
+        num_points = self.NanonisTCP.hex_to_int32(response[8:12])
+        idx = 12
+
+        # parameters_size = self.NanonisTCP.hex_to_int32(response[idx:idx+4])   # Useless
+
+        idx += 4
+        parameters = []
+        num_parameters  = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+        idx += 4
+        for parameter in range(num_parameters):
+            parameter_size = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+            idx += 4
+            parameters.append(response[idx:idx+parameter_size].decode())
+            idx += parameter_size
+            
+        # fixed_parameters_size = self.NanonisTCP.hex_to_int32(response[idx:idx+4]) # Useless
+        idx += 4
+        fixed_parameters = []
+        num_fixed_parameters  = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+        idx += 4
+        for fixed_parameter in range(num_fixed_parameters):
+            fixed_parameter_size = self.NanonisTCP.hex_to_int32(response[idx:idx+4])
+            idx += 4
+            fixed_parameters.append(response[idx:idx+fixed_parameter_size].decode())
+            idx += fixed_parameter_size
+        
+        autosave    = self.NanonisTCP.hex_to_int16(response[idx:idx+4]); idx += 4
+        save_dialog = self.NanonisTCP.hex_to_int16(response[idx:idx+4]); idx += 4
+
+        return {"save_all"    : save_all,
+                "num_sweeps"  : num_sweeps,
+                "back_sweep"  : back_sweep,
+                "num_points"  : num_points,
+                "parameters"  : parameters,
+                "fixed_parameters" : fixed_parameters,
+                "autosave"    : autosave,
+                "save_dialog" : save_dialog}
     
     def AdvPropsSet(self,reset_bias=0,z_controller_hold=0,record_final_z=0,lockin_run=0):
         """

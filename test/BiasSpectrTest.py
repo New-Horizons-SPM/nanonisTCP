@@ -12,12 +12,12 @@ Created on Wed Aug 24 23:12:28 2022
 
 from nanonisTCP import nanonisTCP
 from nanonisTCP.BiasSpectr import BiasSpectr
-import traceback
 import numpy as np
+import traceback
 
-def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
+def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0, debug=False, version=13520):
     # Listening Port: see Nanonis File>Settings>TCP Programming Interface
-    NTCP = nanonisTCP(TCP_IP, TCP_PORT)                                         # Nanonis TCP interface
+    NTCP = nanonisTCP(TCP_IP, TCP_PORT, version=version)                        # Nanonis TCP interface
     try:
         bspec = BiasSpectr(NTCP)                                                # Nanonis TCP Bias Spectroscopy Module
         
@@ -25,8 +25,9 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         Open
         """
         bspec.Open()
-        print("Bias Spectroscopy module open")
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Bias Spectroscopy module open")
+            print("----------------------------------------------------------------------")
         
         """
         Start
@@ -37,9 +38,10 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         if(plot_data):
             import matplotlib.pyplot as plt
             plt.plot(data_dict['Bias calc (V)'],data_dict['Current (A)'])
-        print("data channels: " + str(data_dict.keys()))
-        print("parameters:    " + str(parameters))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("data channels: " + str(data_dict.keys()))
+            print("parameters:    " + str(parameters))
+            print("----------------------------------------------------------------------")
         
         """
         Stop
@@ -54,48 +56,55 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         # bspec.Start(get_data=0,save_base_name="NTCP-Test-Stop-")              # Can't do this to test. must be started and stopped on separate ports
         
         bspec.Stop()
-        print("Acquisition stopped")
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Acquisition stopped")
+            print("----------------------------------------------------------------------")
         
         """
         Status Get
         """
         status = bspec.StatusGet()
-        print("Status: " + ["Not running","Running"][status])
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Status: " + ["Not running","Running"][status])
+            print("----------------------------------------------------------------------")
         
         """
         ChsSet/Get
         """
-        channel_indexes = [0,14,16]
+        channel_indexes = [0,30]
+        if(version < 11798): channel_indexes = [0,14]
         bspec.ChsSet(channel_indexes=channel_indexes,mode="set")
         channel_indexes = bspec.ChsGet()
-        print("channels : " + str(channel_indexes))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("channels : " + str(channel_indexes))
+            print("----------------------------------------------------------------------")
         
         """
         Props Set/Get
         """
         bspec.PropsSet(save_all=1,num_sweeps=20,back_sweep=0,num_points=200,z_offset=10e-12,autosave=0,save_dialog=2)
         propsDict = bspec.PropsGet()
-        print("Properties:\n" + str(propsDict))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Properties:\n" + str(propsDict))
+            print("----------------------------------------------------------------------")
         
         """
         AdvPropsSet/Get
         """
         bspec.AdvPropsSet(reset_bias=0,z_controller_hold=0,record_final_z=0,lockin_run=0)
         advancedProps = bspec.AdvPropsGet()
-        print("Advanced Properties:\n" + str(advancedProps))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Advanced Properties:\n" + str(advancedProps))
+            print("----------------------------------------------------------------------")
         
         """
         LimitsSet/Get
         """
         bspec.LimitsSet(start_value=-1.1,end_value=1.1)
         limits = bspec.LimitsGet()
-        print("Spec limits:\n" + str(limits))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Spec limits:\n" + str(limits))
+            print("----------------------------------------------------------------------")
         
         """
         TimingSet/Get
@@ -104,16 +113,18 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         # round up to 50us or down to 0s
         bspec.TimingSet(z_averaging_time=51e-5,z_offset=1.2e-9,initial_settling_time=370e-6,maximum_slew_rate=np.inf,settling_time=12e-6,integration_time=57e-6,end_settling_time=91e-6,z_control_time=61e-6)
         timing = bspec.TimingGet()
-        print("Spec Timing:\n" + str(timing))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Spec Timing:\n" + str(timing))
+            print("----------------------------------------------------------------------")
         
         """
         AltZCtrlSet/Get
         """
         bspec.AltZCtrlSet(alternate_setpoint_onoff=1,setpoint=22e-12,settling_time=60e-3)
         altZParams = bspec.AltZCtrlGet()
-        print("Spec AltZParams:\n" + str(altZParams))
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Spec AltZParams:\n" + str(altZParams))
+            print("----------------------------------------------------------------------")
         
         """
         MLSLockinPerSegSet/Get and MLSModeSet/Get
@@ -122,11 +133,14 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         # Multi Segment first.
         bspec.MLSModeSet(sweep_mode="MLS")
         sweep_mode = bspec.MLSModeGet()
-        print("Sweep mode: " + sweep_mode)
+        if(debug):
+            print("Sweep mode: " + sweep_mode)
+
         bspec.MLSLockinPerSegSet(lockin_per_segment=0)
         lockin_per_segment = bspec.MLSLockinPerSegGet()
-        print("Spec lockin per segment: " + ["off","on"][lockin_per_segment])
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Spec lockin per segment: " + ["off","on"][lockin_per_segment])
+            print("----------------------------------------------------------------------")
         
         """
         MLSValsSet/Get
@@ -140,15 +154,18 @@ def run_test(TCP_IP='127.0.0.1', TCP_PORT=6501, plot_data=0):
         lockin_run=[0,0]
         bspec.MLSValsSet(bias_start,bias_end,initial_settling_time,settling_time,integration_time,steps,lockin_run)
         mlsVals = bspec.MLSValsGet()
-        print("MLS Values:\n" + str(mlsVals))
-        print("Setting sweep mode back to Linear...")
+        if(debug):
+            print("MLS Values:\n" + str(mlsVals))
+            print("Setting sweep mode back to Linear...")
         bspec.MLSModeSet(sweep_mode="Linear")
         sweep_mode = bspec.MLSModeGet()
-        print("Sweep mode: " + sweep_mode)
-        print("----------------------------------------------------------------------")
+        if(debug):
+            print("Sweep mode: " + sweep_mode)
+            print("----------------------------------------------------------------------")
     except:
-        print(traceback.format_exc())
-        
+        NTCP.close_connection()
+        return(traceback.format_exc())
+    
     NTCP.close_connection()
-    return print('end of test')
+    return "success"
         

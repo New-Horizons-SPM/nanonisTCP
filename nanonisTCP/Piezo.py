@@ -11,6 +11,7 @@ class Piezo:
     """
     def __init__(self,NanonisTCP):
         self.NanonisTCP = NanonisTCP
+        self.version = NanonisTCP.version
     
     def TiltSet(self,tilt_x=None,tilt_y=None):
         """
@@ -110,6 +111,10 @@ class Piezo:
         return [range_x,range_y,range_z]
     
     def DriftCompGet(self):
+        if(self.version  < 11798): return self.DriftCompGet_v0()
+        if(self.version >= 11798): return self.DriftCompGet_v1()
+
+    def DriftCompGet_v0(self):
         """
         Returns the drift compensation parameters
 
@@ -140,8 +145,61 @@ class Piezo:
         zsat   = self.NanonisTCP.hex_to_uint32(response[24:28])
         
         return [status,vx,vy,vz,xsat,ysat,zsat]
+    
+    def DriftCompGet_v1(self):
+        """
+        Returns the drift compensation parameters
+
+        Returns
+        ----------
+        on    : True: Turn compensation on
+                False: Turn compensation off
+        vx    : linear speed applied to the X piezo (m/s)
+        vy    : linear speed applied to the Y piezo (m/s)
+        vz    : linear speed applied to the Z piezo (m/s)
+        xsat  : indicates if the X drift correction reached 10% of piezo range
+        ysat  : indicates if the Y drift correction reached 10% of piezo range
+        zsat  : indicates if the Z drift correction reached 10% of piezo range
+        satLimit : The drift saturation limit in percent of the full piezo range and it applies to all axes
+
+        """
+        hex_rep = self.NanonisTCP.make_header('Piezo.DriftCompGet', body_size=0)
         
-    def DriftCompSet(self,on,vx=[],vy=[],vz=[]):
+        self.NanonisTCP.send_command(hex_rep)
+        
+        response = self.NanonisTCP.receive_response(32)
+        
+        status = self.NanonisTCP.hex_to_uint32(response[0:4])
+        vx       = self.NanonisTCP.hex_to_float32(response[4:8])
+        vy       = self.NanonisTCP.hex_to_float32(response[8:12])
+        vz       = self.NanonisTCP.hex_to_float32(response[12:16])
+        xsat     = self.NanonisTCP.hex_to_uint32(response[16:20])
+        ysat     = self.NanonisTCP.hex_to_uint32(response[20:24])
+        zsat     = self.NanonisTCP.hex_to_uint32(response[24:28])
+        satLimit = self.NanonisTCP.hex_to_float32(response[28:32])
+        
+        return [status,vx,vy,vz,xsat,ysat,zsat,satLimit]
+        
+    def DriftCompSet(self,on,vx=[],vy=[],vz=[],satLimit=[]):
+        """
+        Configures the drift compensation parameters
+
+        Parameters
+        ----------
+        on :  1: Turn compensation on
+              0: Turn compensation off
+             -1: No change
+        vx : linear speed applied to the X piezo (m/s)
+        vy : linear speed applied to the Y piezo (m/s)
+        vz : linear speed applied to the Z piezo (m/s)
+        satLimit : The drift saturation limit in percent of the full piezo range and it applies to all axes
+                   (Nanonis version > ?)
+
+        """
+        if(self.version  < 11798): return self.DriftCompSet_v0(on,vx,vy,vz)
+        if(self.version >= 11798): return self.DriftCompSet_v1(on,vx,vy,vz,satLimit)
+    
+    def DriftCompSet_v0(self,on,vx=[],vy=[],vz=[]):
         """
         Configures the drift compensation parameters
 
@@ -165,6 +223,39 @@ class Piezo:
         hex_rep += self.NanonisTCP.float32_to_hex(vx)
         hex_rep += self.NanonisTCP.float32_to_hex(vy)
         hex_rep += self.NanonisTCP.float32_to_hex(vz)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        self.NanonisTCP.receive_response(0)
+
+    def DriftCompSet_v1(self,on,vx=[],vy=[],vz=[],satLimit=[]):
+        """
+        Configures the drift compensation parameters
+
+        Parameters
+        ----------
+        on :  1: Turn compensation on
+              0: Turn compensation off
+             -1: No change
+        vx : linear speed applied to the X piezo (m/s)
+        vy : linear speed applied to the Y piezo (m/s)
+        vz : linear speed applied to the Z piezo (m/s)
+        satLimit : The drift saturation limit in percent of the full piezo range and it applies to all axes
+
+        """
+        _,n_vx,n_vy,n_vz,_,_,_,n_satLimit = self.DriftCompGet()
+        if(type(vx) == list): vx = n_vx
+        if(type(vy) == list): vy = n_vy
+        if(type(vz) == list): vz = n_vz
+        if(type(satLimit) == list): satLimit = n_satLimit
+    
+        hex_rep = self.NanonisTCP.make_header('Piezo.DriftCompSet', body_size=20)
+        ## Arguments
+        hex_rep += self.NanonisTCP.to_hex(on,4)
+        hex_rep += self.NanonisTCP.float32_to_hex(vx)
+        hex_rep += self.NanonisTCP.float32_to_hex(vy)
+        hex_rep += self.NanonisTCP.float32_to_hex(vz)
+        hex_rep += self.NanonisTCP.float32_to_hex(satLimit)
         
         self.NanonisTCP.send_command(hex_rep)
         

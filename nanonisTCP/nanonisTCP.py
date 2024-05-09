@@ -11,16 +11,19 @@ import socket
 
 
 class nanonisTCP:
-    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=200):
+    def __init__(self, IP='127.0.0.1', PORT=6501, max_buf_size=200, version=99999999):
         """
         Parameters
         IP              : Listening IP address
         PORT            : Listening Port (check Nanonis File>Settings>TCP)
         max_buf_size    : maximum size of the response message. just make it big
+        version         : Nanonis version. See Nanonis > help > info and take the RT Engine number.
+                          Defaults to the latest version of Nanonis
         """
         self.IP   = IP
         self.PORT = PORT
         self.max_buf_size = max_buf_size
+        self.version = version
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)              # Set up the connection
         self.s.connect((IP, PORT))                                              # Open the TCP connection.

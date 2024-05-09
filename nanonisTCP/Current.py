@@ -11,6 +11,7 @@ class Current:
     """
     def __init__(self,NanonisTCP):
         self.NanonisTCP = NanonisTCP
+        self.version = NanonisTCP.version
     
     def Get(self):
         """
@@ -73,7 +74,23 @@ class Current:
         
         return currentBEEM
     
-    def GainSet(self,gain_index):
+    def GainSet(self,gain_index,filter_index=-1):
+        """
+        Sets the gain of the current amplifier
+
+        Parameters
+        ----------
+        gain_index : The index out of the list of gains which can be retrieved
+                     by the function Current.GainsGet
+        filter_index : Nanonis version > 11798 only
+                       The index out of the list of filters which can be retrieved by the function
+                       Current.GainsGet. This is the list of filters available for the Basel PI SP 983c preamplifier. If the
+                       preamplifier in use is not this one or we don’t want to change this parameter, -1 should be used.
+        """
+        if(self.version  < 11798): return self.GainSet_v0(gain_index)
+        if(self.version >= 11798): return self.GainSet_v1(gain_index,filter_index)
+        
+    def GainSet_v0(self,gain_index):
         """
         Sets the gain of the current amplifier
 
@@ -88,6 +105,27 @@ class Current:
         
         ## Arguments
         hex_rep += self.NanonisTCP.to_hex(gain_index,2)
+        
+        self.NanonisTCP.send_command(hex_rep)
+        
+        self.NanonisTCP.receive_response(0)
+           
+    def GainSet_v1(self,gain_index, filter_index=-1):
+        """
+        Sets the gain of the current amplifier
+
+        Parameters
+        ----------
+        gain_index : The index out of the list of gains which can be retrieved
+                     by the function Current.GainsGet
+
+        """
+        ## Make Header
+        hex_rep = self.NanonisTCP.make_header('Current.GainSet', body_size=8)
+        
+        ## Arguments
+        hex_rep += self.NanonisTCP.to_hex(gain_index,4)
+        hex_rep += self.NanonisTCP.to_hex(filter_index,4)
         
         self.NanonisTCP.send_command(hex_rep)
         

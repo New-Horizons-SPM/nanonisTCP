@@ -134,8 +134,15 @@ class Scan:
 
         Parameters
         num_channels    : number of recorded channels.
-        channel_indexes : indexes of recorded channels (see signals manager or
+        channel_indexes : Nanonis v < R11798, use slot number:
+                          Indexes of recorded channels (see signals manager or
                           use Signals.InSlotsGet function)
+
+                          Nanonis v >= R11798, use RT Index:
+                          Indexes of recorded channels. The index is comprised between 0
+                          and 127, and it corresponds to the full list of signals available in the system.
+                          To get the signal name and its corresponding index in the list of the 128 available signals in the Nanonis
+                          Controller, use the Signal.NamesGet function, or check the RT Idx value in the Signals Manager module.
         pixels          : number of pixels per line. forced to a multiple of 16
         lines           : number of scan lines
 
@@ -170,8 +177,15 @@ class Scan:
 
         Returns
         num_channels    : number of recorded channels.
-        channel_indexes : indexes of recorded channels (see signals manager or
+        channel_indexes : Nanonis v < R11798, slot number:
+                          Indexes of recorded channels (see signals manager or
                           use Signals.InSlotsGet function)
+
+                          Nanonis v >= R11798, RT Index:
+                          Indexes of recorded channels. The index is comprised between 0
+                          and 127, and it corresponds to the full list of signals available in the system.
+                          To get the signal name and its corresponding index in the list of the 128 available signals in the Nanonis
+                          Controller, use the Signal.NamesGet function, or check the RT Idx value in the Signals Manager module.
         pixels          : number of pixels per line. forced to a multiple of 16
         lines           : number of scan lines
 
