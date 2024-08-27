@@ -336,7 +336,7 @@ class ZController:
 
         """
         ## Make Header
-        hex_rep = self.NanonisTCP.make_header('ZCtrl.ActiveCtrlSet', body_size=8)
+        hex_rep = self.NanonisTCP.make_header('ZCtrl.ActiveCtrlSet', body_size=4)
         
         ## Arguments
         hex_rep += self.NanonisTCP.to_hex(index,4)
