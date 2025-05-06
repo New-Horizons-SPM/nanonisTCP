@@ -16,6 +16,7 @@ from SignalsTest import run_test as signalsTest
 from TipShaperTest import run_test as tipShaperTest
 from UserOutTest import run_test as userOutTest
 from ZControllerTest import run_test as zControllerTest
+from Util import run_test as UtilTest
 import time
 
 # %%
@@ -148,5 +149,13 @@ print("Testing ZController module...")
 result = zControllerTest(debug=debug, version=version)
 if(not result == "success"):
     print("ZController test failed")
+print(result)
+time.sleep(0.5)
+
+print("********************************")
+print("Testing Utility module...")
+result = UtilTest(debug=debug, version=version)
+if(not result == "success"):
+    print("Utility test failed")
 print(result)
 time.sleep(0.5)
